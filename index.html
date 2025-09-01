@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jason Orozco Zarco // Prompt Engineer Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            overflow: hidden;
+            background-image: url(''); /* <-- PASTE CLASSIC MACOS WALLPAPER URL HERE */
+            background-size: cover;
+            background-position: center;
+        }
+
+        .window {
+            border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0,0,0,0.4);
+            background-color: rgba(30, 30, 30, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            resize: both;
+            overflow: hidden;
+            position: absolute;
+            min-width: 300px;
+            min-height: 200px;
+        }
+
+        .title-bar {
+            height: 36px;
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            cursor: move;
+            user-select: none;
+            background-color: rgba(45, 45, 45, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .traffic-lights {
+            display: flex;
+            align-items: center;
+        }
+
+        .light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .light.red { background-color: #ff5f56; }
+        .light.yellow { background-color: #ffbd2e; }
+        .light.green { background-color: #27c93f; }
+
+        .window-title {
+            color: #d1d1d1;
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            flex-grow: 1;
+            padding-right: 80px; /* Offset for traffic lights */
+        }
+
+        .content {
+            height: calc(100% - 36px);
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .dock {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            padding: 10px;
+            background-color: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+
+        .dock-item {
+            width: 60px;
+            height: 60px;
+            background-color: #333;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .dock-item:hover {
+            transform: translateY(-10px) scale(1.1);
+            filter: brightness(1.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <!-- Top Menu Bar -->
+    <div class="fixed top-0 left-0 right-0 h-8 bg-black bg-opacity-30 backdrop-blur-md flex items-center px-4 z-50 border-b border-white/10">
+        <div class="flex items-center space-x-4 text-sm font-semibold">
+            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10.75 1.5a.75.75 0 00-1.5 0v1.252A6.512 6.512 0 004.999 5.51a.75.75 0 00-1.498.082 8.012 8.012 0 017.5-3.834V1.5zM3.424 6.64a.75.75 0 00-1.06-1.06L1.25 6.695a.75.75 0 001.06 1.06l1.114-1.114zM16.576 6.64a.75.75 0 10-1.06-1.06L14.4 6.695a.75.75 0 001.06 1.06l1.114-1.114zM10 4a6 6 0 100 12 6 6 0 000-12zM6.5 10a3.5 3.5 0 117 0 3.5 3.5 0 01-7 0z"></path></svg>
+            <span class="font-bold">Jason Orozco Zarco</span>
+            <span>File</span>
+            <span>Edit</span>
+            <span>View</span>
+            <span>Go</span>
+            <span>Window</span>
+            <span>Help</span>
+        </div>
+        <div class="ml-auto text-sm" id="clock"></div>
+    </div>
+
+    <!-- Main Project Window -->
+    <div id="project-window" class="window" style="width: 60vw; height: 70vh; top: 10vh; left: 9vw;">
+        <div class="title-bar">
+            <div class="traffic-lights">
+                <div class="light red"></div>
+                <div class="light yellow"></div>
+                <div class="light green"></div>
+            </div>
+            <div class="window-title" id="project-window-title">Project Showcase</div>
+        </div>
+        <div class="content">
+            <iframe id="project-iframe" src="about:blank" data-current-url=""></iframe>
+        </div>
+    </div>
+
+    <!-- Project Description Window -->
+    <div id="description-window" class="window" style="width: 20vw; height: 40vh; top: 25vh; left: 71vw;">
+        <div class="title-bar">
+            <div class="traffic-lights">
+                <div class="light red"></div>
+                <div class="light yellow"></div>
+                <div class="light green"></div>
+            </div>
+            <div class="window-title">Project Details</div>
+        </div>
+        <div id="description-content" class="content p-6 text-gray-300 text-sm overflow-y-auto">
+            <h3 id="description-title" class="text-lg font-bold text-white mb-2">Welcome</h3>
+            <p id="description-text">
+                This is a portfolio for a prompt engineer position at Flux. The aesthetic is a dark mode macOS window, with an additional window explaining each project. Select a project from the dock below to get started.
+            </p>
+        </div>
+    </div>
+
+    <!-- Dock -->
+    <div id="dock" class="dock">
+        <!-- Dock items will be generated by JavaScript -->
+    </div>
+
+    <script>
+        const projects = [
+            {
+                id: 'doppelganger',
+                title: 'Project Doppelgänger',
+                abbreviation: 'PD',
+                url: 'https://ipv4or.github.io/PROJECT-DOPPELGANGER',
+                description: 'A conceptual exploration of digital identity and AI-driven mimicry. This project uses generative models to create digital "doppelgängers" based on user input, questioning the nature of self in the digital age.'
+            },
+            {
+                id: 'arviso',
+                title: 'Arviso',
+                abbreviation: 'AR',
+                url: 'https://ipv4or.github.io/arviso',
+                description: 'An AI-powered art advisor that generates critiques and suggests improvements for user-submitted artwork. It leverages visual analysis models and art historical data to provide insightful feedback.'
+            },
+            {
+                id: 'blush',
+                title: 'Blush',
+                abbreviation: 'BL',
+                url: 'https://ipv4or.github.io/blush',
+                description: 'An experiment in generating emotionally resonant color palettes. Blush uses sentiment analysis on text to create unique, fitting color schemes for design projects, branding, and digital art.'
+            },
+            {
+                id: 'id',
+                title: 'ID',
+                abbreviation: 'ID',
+                url: 'https://campus-edu.github.io/ID',
+                description: 'A speculative design project that imagines future forms of identification using biometric data and personalized AI verification. It explores themes of privacy, security, and identity in a technologically advanced society.'
+            }
+        ];
+
+        const dock = document.getElementById('dock');
+        const projectIframe = document.getElementById('project-iframe');
+        const projectWindowTitle = document.getElementById('project-window-title');
+        const descriptionTitle = document.getElementById('description-title');
+        const descriptionText = document.getElementById('description-text');
+        
+        let isAnimating = false;
+
+        // Populate Dock
+        projects.forEach(project => {
+            const dockItem = document.createElement('div');
+            dockItem.classList.add('dock-item');
+            dockItem.textContent = project.abbreviation;
+            dockItem.title = project.title;
+            dockItem.addEventListener('click', (e) => {
+                // Prevent clicking the same project or clicking during animation
+                if (isAnimating || projectIframe.getAttribute('data-current-url') === project.url) return;
+                isAnimating = true;
+
+                const projectWindow = document.getElementById('project-window');
+                const descriptionWindow = document.getElementById('description-window');
+                const dockItemRect = e.currentTarget.getBoundingClientRect();
+
+                const windows = [
+                    { el: projectWindow, originalRect: projectWindow.getBoundingClientRect() },
+                    { el: descriptionWindow, originalRect: descriptionWindow.getBoundingClientRect() }
+                ];
+
+                // 1. Animate Out: Shrink windows into the clicked dock item
+                windows.forEach(win => {
+                    win.el.style.transition = 'all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+                    win.el.style.left = `${dockItemRect.left + dockItemRect.width / 2 - win.originalRect.width / 2}px`;
+                    win.el.style.top = `${dockItemRect.top + dockItemRect.height / 2 - win.originalRect.height / 2}px`;
+                    win.el.style.transform = 'scale(0)';
+                    win.el.style.opacity = '0';
+                });
+                
+                // 2. Wait for shrink animation to finish
+                setTimeout(() => {
+                    // Update content while windows are hidden
+                    projectIframe.src = project.url;
+                    projectIframe.setAttribute('data-current-url', project.url);
+                    projectWindowTitle.textContent = project.title;
+                    descriptionTitle.textContent = project.title;
+                    descriptionText.textContent = project.description;
+                    
+                    // 3. Animate In: Grow windows back to their original position
+                    windows.forEach(win => {
+                        win.el.style.left = `${win.originalRect.left}px`;
+                        win.el.style.top = `${win.originalRect.top}px`;
+                        win.el.style.transform = 'scale(1)';
+                        win.el.style.opacity = '1';
+                    });
+
+                    // 4. Clean up styles after grow animation to re-enable normal dragging
+                    setTimeout(() => {
+                        windows.forEach(win => {
+                           win.el.style.transition = '';
+                           win.el.style.transform = '';
+                        });
+                        isAnimating = false;
+                    }, 400); // Must match transition duration
+
+                }, 400); // Must match transition duration
+            });
+            dock.appendChild(dockItem);
+        });
+
+        // Make windows draggable
+        function makeDraggable(windowEl) {
+            const titleBar = windowEl.querySelector('.title-bar');
+            let offsetX, offsetY;
+
+            const move = (e) => {
+                let x, y;
+                if (e.touches) {
+                    x = e.touches[0].clientX;
+                    y = e.touches[0].clientY;
+                } else {
+                    x = e.clientX;
+                    y = e.clientY;
+                }
+                windowEl.style.left = `${x - offsetX}px`;
+                windowEl.style.top = `${y - offsetY}px`;
+            };
+
+            const addListeners = (e) => {
+                e.preventDefault();
+                let x, y;
+                if (e.touches) {
+                    x = e.touches[0].clientX;
+                    y = e.touches[0].clientY;
+                } else {
+                    x = e.clientX;
+                    y = e.clientY;
+                }
+                offsetX = x - windowEl.offsetLeft;
+                offsetY = y - windowEl.offsetTop;
+                document.addEventListener('mousemove', move);
+                document.addEventListener('touchmove', move);
+                document.addEventListener('mouseup', removeListeners);
+                document.addEventListener('touchend', removeListeners);
+            };
+
+            const removeListeners = () => {
+                document.removeEventListener('mousemove', move);
+                document.removeEventListener('touchmove', move);
+                document.removeEventListener('mouseup', removeListeners);
+                document.removeEventListener('touchend', removeListeners);
+            };
+
+            titleBar.addEventListener('mousedown', addListeners);
+            titleBar.addEventListener('touchstart', addListeners);
+        }
+
+        makeDraggable(document.getElementById('project-window'));
+        makeDraggable(document.getElementById('description-window'));
+        
+        // Clock
+        const clockElement = document.getElementById('clock');
+        function updateClock() {
+            const now = new Date();
+            const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            clockElement.textContent = now.toLocaleDateString('en-US', options).replace(',', '');
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Initial state
+        if (projects.length > 0) {
+            const firstProject = projects[0];
+            projectIframe.src = firstProject.url;
+            projectIframe.setAttribute('data-current-url', firstProject.url);
+            projectWindowTitle.textContent = firstProject.title;
+            descriptionTitle.textContent = firstProject.title;
+            descriptionText.textContent = firstProject.description;
+        }
+
+    </script>
+</body>
+</html>
+
